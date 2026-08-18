@@ -1,0 +1,6 @@
+train: /mnt/data/zxy/dataset/ogsod_single_class/oil_tank/OGSOD_train.txt
+val: /mnt/data/zxy/dataset/ogsod_single_class/oil_tank/OGSOD_trainval.txt
+
+nc: 1
+
+names: ['oil tank']

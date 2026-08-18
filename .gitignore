@@ -1,0 +1,48 @@
+# Environment and secrets
+.env
+.env.*
+!.env.example
+!.env.*.example
+
+# Python
+__pycache__/
+*.py[cod]
+*.pyd
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+.venv/
+venv/
+*.egg-info/
+build/
+dist/
+
+# Model weights and inference artifacts
+weights/*
+!weights/README.md
+*.pt
+*.pth
+*.onnx
+*.engine
+*.torchscript
+runs/
+uploads/
+results/
+backend/runtime/
+
+# Frontend
+node_modules/
+.next/
+out/
+frontend/.env*.local
+npm-debug.log*
+pnpm-debug.log*
+
+# IDE and OS
+.idea/
+.vscode/
+.DS_Store
+Thumbs.db
+desktop.ini

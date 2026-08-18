@@ -1,0 +1,34 @@
+services:
+  backend:
+    build:
+      context: .
+      dockerfile: backend/Dockerfile
+    environment:
+      MODEL_WEIGHTS: /workspace/weights/best.pt
+      MODEL_SOURCE_DIR: /workspace/third_party/YOLOv11-CMFM
+      MODEL_DEVICE: "0"
+      CORS_ORIGINS: http://localhost:3000
+    volumes:
+      - ./weights:/workspace/weights:ro
+    ports:
+      - "8000:8000"
+    gpus: all
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/api/v1/health/live')"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+
+  frontend:
+    build:
+      context: .
+      dockerfile: frontend/Dockerfile
+      args:
+        NEXT_PUBLIC_API_BASE_URL: http://localhost:8000
+        NEXT_PUBLIC_USE_MOCK_API: "false"
+    depends_on:
+      backend:
+        condition: service_started
+    ports:
+      - "3000:3000"
+

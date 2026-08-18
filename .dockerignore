@@ -1,0 +1,13 @@
+.git
+.github
+.venv
+**/__pycache__
+**/*.pyc
+**/node_modules
+**/.next
+backend/runtime
+weights/*.pt
+runs
+uploads
+results
+

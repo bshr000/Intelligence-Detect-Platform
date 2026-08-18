@@ -1,0 +1,10 @@
+
+train:  /workspace/dataset/MVSDA2.0_vis_vh/train.txt  # 16551 images
+val:  /workspace/dataset/MVSDA2.0_vis_vh/val.txt # 4952 images
+test:  /workspace/dataset/MVSDA2.0_vis_vh/test.txt # 4952 images
+#"D:/wan/BaiduNetdiskDownload/RGBT/VEDAI/VEDAI_infrared_val.txt"
+# number of classes
+nc: 1
+
+# class names
+names: ['airport']

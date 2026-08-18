@@ -1,0 +1,7 @@
+fastapi>=0.116,<1.0
+uvicorn[standard]>=0.35,<1.0
+python-multipart>=0.0.20,<1.0
+
+# Install the bundled model package separately from the repository root:
+# python -m pip install -e ./third_party/YOLOv11-CMFM
+

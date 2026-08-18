@@ -1,0 +1,8 @@
+
+train:  /workspace/dataset/ogsod/OGSOD_train.txt  
+val:  /workspace/dataset/ogsod/OGSOD_trainval.txt 
+
+nc: 3
+
+# class names
+names: ['bridage', 'harbor', 'oil tank']
