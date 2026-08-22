@@ -21,6 +21,14 @@ def _env_bool(name: str, default: bool) -> bool:
     return value.strip().lower() in {"1", "true", "yes", "on"}
 
 
+def _env_optional(name: str, default: str | None = None) -> str | None:
+    value = os.getenv(name)
+    if value is None:
+        return default
+    value = value.strip()
+    return value or None
+
+
 @dataclass(frozen=True, slots=True)
 class Settings:
     app_name: str = os.getenv("APP_NAME", "YOLO-CMFM Inference API")
@@ -44,6 +52,10 @@ class Settings:
         ).split(",")
         if origin.strip()
     )
+    cors_origin_regex: str | None = _env_optional(
+        "CORS_ORIGIN_REGEX",
+        r"^https?://(?:localhost|127\.0\.0\.1)(?::\d+)?$",
+    )
 
     @property
     def max_upload_bytes(self) -> int:
@@ -59,4 +71,3 @@ class Settings:
 
 
 settings = Settings()
-

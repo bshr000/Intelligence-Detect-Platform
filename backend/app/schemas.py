@@ -32,6 +32,8 @@ class DetectionResponse(BaseModel):
     image_width: int
     image_height: int
     result_image_url: str
+    rgb_result_image_url: str
+    sar_result_image_url: str
     detections: list[Detection]
 
 
@@ -50,4 +52,3 @@ class ModelInfoResponse(BaseModel):
     weights: str
     source: str
     detail: str | None = None
-

@@ -16,6 +16,8 @@ export type DetectionResponse = {
   inferenceTime: number;
   detections: Detection[];
   resultImageUrl?: string;
+  rgbResultImageUrl?: string;
+  sarResultImageUrl?: string;
   model: string;
 };
 

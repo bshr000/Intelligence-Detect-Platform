@@ -167,11 +167,17 @@ class ModelService:
 
             result = results[0]
             detections = self._serialize_detections(result, pair.width, pair.height)
-            output = pair.visible.copy()
-            self._draw_detections(output, detections)
-            result_path = self.config.results_dir / f"{request_id}.png"
-            if not cv2.imwrite(str(result_path), output):
-                raise RuntimeError("Failed to write the annotated result image.")
+            rgb_output = pair.visible.copy()
+            sar_output = cv2.cvtColor(pair.sar, cv2.COLOR_GRAY2BGR)
+            self._draw_detections(rgb_output, detections)
+            self._draw_detections(sar_output, detections)
+
+            rgb_result_path = self.config.results_dir / f"{request_id}-rgb.png"
+            sar_result_path = self.config.results_dir / f"{request_id}-sar.png"
+            if not cv2.imwrite(str(rgb_result_path), rgb_output):
+                raise RuntimeError("Failed to write the RGB detection result image.")
+            if not cv2.imwrite(str(sar_result_path), sar_output):
+                raise RuntimeError("Failed to write the SAR detection result image.")
 
             speed = getattr(result, "speed", {}) or {}
             self.cleanup_expired_results()
@@ -186,6 +192,8 @@ class ModelService:
                 image_width=pair.width,
                 image_height=pair.height,
                 result_image_url=f"/api/v1/results/{request_id}.png",
+                rgb_result_image_url=f"/api/v1/results/{request_id}/rgb.png",
+                sar_result_image_url=f"/api/v1/results/{request_id}/sar.png",
                 detections=detections,
             )
         finally:
@@ -254,4 +262,3 @@ class ModelService:
                 2,
                 cv2.LINE_AA,
             )
-

@@ -28,53 +28,63 @@ function ViewerPanel({ title, children }: { title: string; children: React.React
 
 export default function ResultViewer({ rgb, sar, result, state }: ResultViewerProps) {
   const isLoading = state === "loading";
-  const resultSource = result?.resultImageUrl ?? rgb.url;
+  const rgbResultSource = result?.rgbResultImageUrl ?? result?.resultImageUrl ?? rgb.url;
+  const sarResultSource = result?.sarResultImageUrl ?? sar.url;
+
+  const renderResult = (
+    source: string | undefined,
+    fallback: SourceImage,
+    alt: string,
+    hasRenderedImage: boolean,
+  ) => {
+    if (isLoading) {
+      return (
+        <div className="result-loading">
+          <div className="scan-line" />
+          <Scan size={30} weight="thin" aria-hidden="true" />
+          <span>Processing multimodal inputs</span>
+        </div>
+      );
+    }
+
+    return (
+      <ImagePreview
+        src={result ? source : undefined}
+        alt={alt}
+        fileName={fallback.name}
+        isTiff={Boolean(result && !hasRenderedImage && fallback.isTiff)}
+        detections={result && !hasRenderedImage ? result.detections : []}
+        emptyLabel="Run detection to generate output"
+      />
+    );
+  };
 
   return (
     <section className="results-section" aria-labelledby="results-title" aria-busy={isLoading}>
       <div className="section-heading">
         <div>
           <span>Output Viewer</span>
-          <h2 id="results-title">Detection Result</h2>
+          <h2 id="results-title">Detection Results</h2>
         </div>
         {result ? <strong>{result.detections.length} objects detected</strong> : null}
       </div>
 
       <div className="viewer-grid">
-        <ViewerPanel title="RGB Input">
-          <ImagePreview
-            src={rgb.url}
-            alt="RGB input image"
-            fileName={rgb.name}
-            isTiff={rgb.isTiff}
-          />
+        <ViewerPanel title="RGB Detection Result">
+          {renderResult(
+            rgbResultSource,
+            rgb,
+            "YOLO-CMFM RGB detection result",
+            Boolean(result?.rgbResultImageUrl ?? result?.resultImageUrl),
+          )}
         </ViewerPanel>
 
-        <ViewerPanel title="SAR Input">
-          <ImagePreview
-            src={sar.url}
-            alt="SAR input image"
-            fileName={sar.name}
-            isTiff={sar.isTiff}
-          />
-        </ViewerPanel>
-
-        <ViewerPanel title="Detection Result">
-          {isLoading ? (
-            <div className="result-loading">
-              <div className="scan-line" />
-              <Scan size={30} weight="thin" aria-hidden="true" />
-              <span>Processing multimodal inputs</span>
-            </div>
-          ) : (
-            <ImagePreview
-              src={result ? resultSource : undefined}
-              alt="YOLO-CMFM detection result"
-              fileName={rgb.name}
-              isTiff={Boolean(result && !result.resultImageUrl && rgb.isTiff)}
-              detections={result?.resultImageUrl ? [] : result?.detections}
-              emptyLabel="Run detection to generate output"
-            />
+        <ViewerPanel title="SAR Detection Result">
+          {renderResult(
+            sarResultSource,
+            sar,
+            "YOLO-CMFM SAR detection result",
+            Boolean(result?.sarResultImageUrl),
           )}
         </ViewerPanel>
       </div>

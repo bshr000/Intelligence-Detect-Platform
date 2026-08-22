@@ -14,7 +14,7 @@ const specs = [
   ["Model", "YOLO-CMFM"],
   ["Weights", "best.pt"],
   ["Input", "RGB + SAR"],
-  ["Endpoint", "POST /detect"],
+  ["Endpoint", "POST /api/v1/detections"],
 ];
 
 export default function DetectionPanel({ state, canRun, error, onRun }: DetectionPanelProps) {

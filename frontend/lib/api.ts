@@ -1,6 +1,8 @@
 import type { Detection, DetectionResponse } from "./types";
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL ?? "http://localhost:8000";
+// Empty by default: the browser calls the same Next.js origin and Next proxies
+// /api/* to FastAPI. Set NEXT_PUBLIC_API_BASE_URL only for direct API access.
+const API_BASE_URL = (process.env.NEXT_PUBLIC_API_BASE_URL ?? "").replace(/\/$/, "");
 const USE_MOCK_API = process.env.NEXT_PUBLIC_USE_MOCK_API === "true";
 
 type BackendDetection = {
@@ -22,13 +24,18 @@ type BackendResponse = {
   detections: BackendDetection[];
   result_image_url?: string;
   resultImageUrl?: string;
+  rgb_result_image_url?: string;
+  rgbResultImageUrl?: string;
+  sar_result_image_url?: string;
+  sarResultImageUrl?: string;
   model?: string;
 };
 
 function resolveApiUrl(path?: string) {
   if (!path) return undefined;
   if (/^https?:\/\//i.test(path)) return path;
-  return `${API_BASE_URL.replace(/\/$/, "")}/${path.replace(/^\//, "")}`;
+  const normalizedPath = `/${path.replace(/^\//, "")}`;
+  return API_BASE_URL ? `${API_BASE_URL}${normalizedPath}` : normalizedPath;
 }
 
 const mockDetections: Detection[] = [
@@ -56,6 +63,10 @@ function normalizeResponse(data: BackendResponse): DetectionResponse {
   return {
     inferenceTime: data.inference_time ?? data.inferenceTime ?? 0,
     resultImageUrl: resolveApiUrl(data.result_image_url ?? data.resultImageUrl),
+    rgbResultImageUrl: resolveApiUrl(
+      data.rgb_result_image_url ?? data.rgbResultImageUrl ?? data.result_image_url ?? data.resultImageUrl,
+    ),
+    sarResultImageUrl: resolveApiUrl(data.sar_result_image_url ?? data.sarResultImageUrl),
     model: data.model ?? "YOLO-CMFM",
     detections: data.detections.map((item, index) => ({
       id: item.id ?? `detection-${index}`,
@@ -80,10 +91,19 @@ export async function detect(rgbFile: File, sarFile: File): Promise<DetectionRes
     };
   }
 
-  const response = await fetch(`${API_BASE_URL}/api/v1/detections`, {
-    method: "POST",
-    body: formData,
-  });
+  const endpoint = resolveApiUrl("/api/v1/detections");
+  let response: Response;
+  try {
+    response = await fetch(endpoint!, {
+      method: "POST",
+      body: formData,
+    });
+  } catch (error) {
+    const reason = error instanceof Error ? ` (${error.message})` : "";
+    throw new Error(
+      `Cannot reach the inference API at ${endpoint}. Check that FastAPI is running and the API proxy is configured${reason}`,
+    );
+  }
 
   if (!response.ok) {
     const body = await response.text();

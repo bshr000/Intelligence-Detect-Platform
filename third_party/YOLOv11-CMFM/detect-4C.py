@@ -3,8 +3,8 @@ warnings.filterwarnings('ignore')
 from ultralytics import YOLO
 
 if __name__ == '__main__':
-    model = YOLO(R"/mnt/data/zxy/YOLOv11-RGBT-vedai/train_program_ogsod/runs/train/yolo11s-hybridfusion-CMFM(+gate)-400/weights/best.pt") # select your model.pt path
-    model.predict(source=r"/mnt/data/zxy/dataset/ogsod/OGSOD_trainval.txt",
+    model = YOLO(R"D:/Codex/AI_Workspace/03_AI_Engineering/YOLO-CMFM-Platform/weights/yolo11s-ogsod-best.pt") # select your model.pt path
+    model.predict(source=r"D:/Codex/AI_Workspace/03_AI_Engineering/YOLO-CMFM-Platform/images/visible/1__1__0___0.png",
                   imgsz=640,
                   project='runs/detect',
                   name='exp',

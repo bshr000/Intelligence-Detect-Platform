@@ -35,6 +35,7 @@ app = FastAPI(
 app.add_middleware(
     CORSMiddleware,
     allow_origins=list(settings.cors_origins),
+    allow_origin_regex=settings.cors_origin_regex,
     allow_credentials=False,
     allow_methods=["GET", "POST"],
     allow_headers=["*"],
@@ -171,7 +172,18 @@ async def legacy_detection(
 
 @app.get("/api/v1/results/{request_id}.png", tags=["inference"])
 async def result_image(request_id: UUID) -> FileResponse:
-    path = settings.results_dir / f"{request_id}.png"
+    """Backward-compatible RGB result endpoint."""
+    path = settings.results_dir / f"{request_id}-rgb.png"
+    if not path.is_file():
+        raise HTTPException(status_code=404, detail="Result image not found or expired.")
+    return FileResponse(path, media_type="image/png")
+
+
+@app.get("/api/v1/results/{request_id}/{modality}.png", tags=["inference"])
+async def modality_result_image(request_id: UUID, modality: str) -> FileResponse:
+    if modality not in {"rgb", "sar"}:
+        raise HTTPException(status_code=404, detail="Unknown result modality.")
+    path = settings.results_dir / f"{request_id}-{modality}.png"
     if not path.is_file():
         raise HTTPException(status_code=404, detail="Result image not found or expired.")
     return FileResponse(path, media_type="image/png")

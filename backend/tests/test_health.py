@@ -31,3 +31,26 @@ def test_detection_endpoint_reports_unavailable_model_without_weights() -> None:
 
     assert response.status_code == 503
     assert "weights not found" in response.json()["detail"].lower()
+
+
+def test_cors_allows_local_frontend_on_dynamic_port() -> None:
+    origin = "http://localhost:3001"
+    with TestClient(app) as client:
+        response = client.get(
+            "/api/v1/health/live",
+            headers={"Origin": origin},
+        )
+
+    assert response.status_code == 200
+    assert response.headers["access-control-allow-origin"] == origin
+
+
+def test_cors_does_not_allow_untrusted_origin() -> None:
+    with TestClient(app) as client:
+        response = client.get(
+            "/api/v1/health/live",
+            headers={"Origin": "https://example.invalid"},
+        )
+
+    assert response.status_code == 200
+    assert "access-control-allow-origin" not in response.headers
